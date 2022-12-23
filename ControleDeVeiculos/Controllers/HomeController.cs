@@ -1,4 +1,4 @@
-﻿using ControleDeVeiculos.Models;
+﻿using ControleDeVeiculos.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 

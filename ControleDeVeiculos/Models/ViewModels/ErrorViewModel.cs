@@ -1,4 +1,4 @@
-namespace ControleDeVeiculos.Models
+namespace ControleDeVeiculos.Models.ViewModels
 {
     public class ErrorViewModel
     {

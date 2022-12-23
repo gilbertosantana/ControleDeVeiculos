@@ -1,0 +1,64 @@
+﻿@model IEnumerable<Veiculo>
+
+@{
+    ViewData["Title"] = "Veiculos";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-dark">Create New</a>
+</p>
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr class="table-dark">
+                <th>
+                    @Html.DisplayNameFor(model => model.Nome)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Modelo)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.AnoFabricacao)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Cor)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Placa)
+                </th>
+                <th>
+
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var veiculo in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelVeiculo => veiculo.Nome)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelVeiculo => veiculo.Modelo)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelVeiculo => veiculo.AnoFabricacao)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelVeiculo => veiculo.Cor)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelVeiculo => veiculo.Placa)
+                    </td>
+                    <td>
+                        <a asp-action="Edit" class="btn btn-primary" asp-route-id="@veiculo.Id">Edit</a> |
+                        <a asp-action="Details" class="btn btn-secondary" asp-route-id="@veiculo.Id">Details</a> |
+                        <a asp-action="Delete" class="btn btn-danger" asp-route-id="@veiculo.Id">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

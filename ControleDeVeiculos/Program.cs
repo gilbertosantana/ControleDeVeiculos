@@ -1,9 +1,20 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using ControleDeVeiculos.Data;
+using ControleDeVeiculos.Services;
+
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<ControleDeVeiculosContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ControleDeVeiculosContext") ?? throw new InvalidOperationException("Connection string 'ControleDeVeiculosContext' not found.")));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddScoped<VeiculoService>();
+builder.Services.AddScoped<MarcaService>();
+
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

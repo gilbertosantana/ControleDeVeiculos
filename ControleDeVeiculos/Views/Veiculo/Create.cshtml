@@ -1,0 +1,44 @@
+﻿@model ControleDeVeiculos.Models.ViewModels.VeiculoFormViewModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<h4>Veiculo</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div class="form-group">
+                <label asp-for="Veiculo!.Nome" class="control-label"></label>
+                <input asp-for="Veiculo!.Nome" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Veiculo!.Modelo" class="control-label"></label>
+                <input asp-for="Veiculo!.Modelo" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Veiculo!.AnoFabricacao" class="control-label"></label>
+                <input asp-for="Veiculo!.AnoFabricacao" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Veiculo!.Cor" class="control-label"></label>
+                <input asp-for="Veiculo!.Cor" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Veiculo!.Placa" class="control-label"></label>
+                <input asp-for="Veiculo!.Placa" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Veiculo!.MarcaId" class="control-label"></label>
+                <select asp-for="Veiculo!.MarcaId" asp-items="@(new SelectList(Model.Marcas, "Id", "Name"))" class="form-control"></select>
+            </div>
+            <br />
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
