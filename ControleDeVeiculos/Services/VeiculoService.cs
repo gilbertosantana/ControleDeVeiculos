@@ -26,6 +26,8 @@ namespace ControleDeVeiculos.Services
 
         public void Insert(Veiculo veiculo)
         {
+            veiculo.Placa = veiculo.Placa!.ToUpper();
+
             _context.Add(veiculo);
             _context.SaveChanges();
         }
@@ -40,6 +42,13 @@ namespace ControleDeVeiculos.Services
             _context.Update(veiculo);
             _context.SaveChanges();
             
+        }
+
+        public void Remove(int id)
+        {
+            var obj = _context.Veiculo.Find(id);
+            _context.Veiculo.Remove(obj!);
+            _context.SaveChanges();
         }
     }
 }
