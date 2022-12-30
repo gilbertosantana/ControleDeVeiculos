@@ -1,5 +1,6 @@
 ﻿using ControleDeVeiculos.Data;
 using ControleDeVeiculos.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ControleDeVeiculos.Services
 {
@@ -12,9 +13,9 @@ namespace ControleDeVeiculos.Services
             _context = context;
         }
 
-        public List<Marca> FindAll()
+        public async Task<List<Marca>> FindAllAsync()
         {
-            return _context.Marca.OrderBy(marca => marca.Name).ToList();
+            return await _context.Marca.OrderBy(marca => marca.Name).ToListAsync();
         }
     }
 }

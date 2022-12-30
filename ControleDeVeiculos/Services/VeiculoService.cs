@@ -1,5 +1,6 @@
 ﻿using ControleDeVeiculos.Data;
 using ControleDeVeiculos.Models;
+using ControleDeVeiculos.Services.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,41 +15,51 @@ namespace ControleDeVeiculos.Services
             _context = context;
         }
 
-        public List<Veiculo> FindAll()
+        public async Task<List<Veiculo>> FindAllAsync()
         {
-            return _context.Veiculo.ToList();
+            return await _context.Veiculo.ToListAsync();
         }
 
-        public Veiculo? FindById(int id)
+        public async Task<Veiculo?> FindByIdAsync(int id)
         {
-            return _context.Veiculo.Include(obj => obj.Marca).FirstOrDefault(obj => obj.Id == id);
+            return await _context
+                        .Veiculo
+                        .Include(obj => obj.Marca)
+                        .FirstOrDefaultAsync(obj => obj.Id == id);
         }
 
-        public void Insert(Veiculo veiculo)
+        public async Task InsertAsync(Veiculo veiculo)
         {
             veiculo.Placa = veiculo.Placa!.ToUpper();
 
             _context.Add(veiculo);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void Update(Veiculo veiculo)
+        public async Task UpdateAsync(Veiculo veiculo)
         {
-            if(!_context.Veiculo.Any(x => x.Id == veiculo.Id))
+            bool hasAny = await _context.Veiculo.AnyAsync(x => x.Id == veiculo.Id);
+            if (!hasAny)
             {
-                throw new Exception();
+                throw new NotFoundException("Id not found");
             }
-
-            _context.Update(veiculo);
-            _context.SaveChanges();
+            try
+            {
+                _context.Update(veiculo);
+                await _context.SaveChangesAsync();
+            }
+            catch(DbUpdateConcurrencyException e)
+            {
+                throw new DbConcurrencyException(e.Message);
+            }
             
         }
 
-        public void Remove(int id)
+        public async Task RemoveAsync(int id)
         {
-            var obj = _context.Veiculo.Find(id);
+            var obj = await _context.Veiculo.FindAsync(id);
             _context.Veiculo.Remove(obj!);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
     }
 }

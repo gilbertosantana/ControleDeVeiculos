@@ -1,7 +1,9 @@
 ﻿using ControleDeVeiculos.Models;
 using ControleDeVeiculos.Models.ViewModels;
+using ControleDeVeiculos.Services.Exceptions;
 using ControleDeVeiculos.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace ControleDeVeiculos.Controllers
 {
@@ -15,15 +17,15 @@ namespace ControleDeVeiculos.Controllers
             _veiculoService = veiculoService;
             _marcaService = marcaService;
         }
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var veiculos = _veiculoService.FindAll();
+            var veiculos = await _veiculoService.FindAllAsync();
             return View(veiculos);
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            var marcas = _marcaService.FindAll();
+            var marcas = await _marcaService.FindAllAsync();
             var viewModel = new VeiculoFormViewModel { Marcas = marcas };
 
             return View(viewModel);
@@ -31,84 +33,115 @@ namespace ControleDeVeiculos.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Veiculo veiculo)
+        public async Task<IActionResult> Create(Veiculo veiculo)
         {
-            _veiculoService.Insert(veiculo);
+            if (!ModelState.IsValid)
+            {
+                var marcas = await _marcaService.FindAllAsync();
+                var viewModel = new VeiculoFormViewModel { Veiculo = veiculo, Marcas = marcas };
+                return View(viewModel);
+            }
+            await _veiculoService.InsertAsync(veiculo);
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Edit(int? id)
+        public async Task<IActionResult> Edit(int? id)
         {
-            if(id == null)
+            if (id == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { Message = "Id not provided" });
             }
 
-            var obj = _veiculoService.FindById(id.Value);
+            var obj = await _veiculoService.FindByIdAsync(id.Value);
 
-            if(obj == null)
+            if (obj == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { Message = "Id not found" });
             }
-            List<Marca> marcas = _marcaService.FindAll();
+            List<Marca> marcas = await _marcaService.FindAllAsync();
 
-            VeiculoFormViewModel viewModel = new VeiculoFormViewModel { Veiculo = obj, Marcas = marcas};
+            VeiculoFormViewModel viewModel = new VeiculoFormViewModel { Veiculo = obj, Marcas = marcas };
 
             return View(viewModel);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, Veiculo veiculo)
+        public async Task<IActionResult> Edit(int id, Veiculo veiculo)
         {
-            if(id != veiculo.Id)
+            if (!ModelState.IsValid)
             {
-                return NotFound();
+                var marcas = await _marcaService.FindAllAsync();
+                var viewModel = new VeiculoFormViewModel { Veiculo = veiculo, Marcas = marcas };
+                return View(viewModel);
             }
-            _veiculoService.Update(veiculo);
-
-            return RedirectToAction(nameof(Index));
+            if (id != veiculo.Id)
+            {
+                return RedirectToAction(nameof(Error), new { Message = "Id not mismatch" });
+            }
+            try
+            {
+                await _veiculoService.UpdateAsync(veiculo);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (NotFoundException e)
+            {
+                return RedirectToAction(nameof(Error), new { Message = e.Message });
+            }
+            catch(DbConcurrencyException e)
+            {
+                return RedirectToAction(nameof(Error), new { Message = e.Message });
+            }
         }
 
-        public IActionResult Delete(int? id)
+        public async Task<IActionResult> Delete(int? id)
         {
-            if(id == null)
+            if (id == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { Message = "Id not provided" });
             }
+            var obj = await _veiculoService.FindByIdAsync(id.Value);
 
-            var obj = _veiculoService.FindById(id.Value);
-
-            if(obj == null)
+            if (obj == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { Message = "Id not found" });
             }
-
             return View(obj);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            _veiculoService.Remove(id);
+            await _veiculoService.RemoveAsync(id);
+
             return RedirectToAction(nameof(Index));
-            
         }
 
-        public IActionResult Details(int? id)
+        public async Task<IActionResult> Details(int? id)
         {
-            if(id == null)
+            if (id == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { Message = "Id not provided" });
             }
 
-            var obj = _veiculoService.FindById(id.Value);
-
-            if(obj == null)
+            var obj = await _veiculoService.FindByIdAsync(id.Value);
+            if (obj == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { Message = "Id not found" });
             }
 
             return View(obj);
+        }
+
+        public IActionResult Error(string message)
+        {
+            var viewModel = new ErrorViewModel
+            {
+                Message = message,
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+            };
+
+            return View(viewModel);
         }
     }
 }
